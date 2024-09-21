@@ -1,16 +1,17 @@
 "use client"
 
-import { useState } from "react"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Edit, Heart, Trash } from "lucide-react"
+import { useUpDataLikeMutation } from "@/redux/api"
 
 interface PostData {
   title: string
   body: string
   userId: number
   id: number
+  liked?: boolean
 }
 
 interface EnhancedDataCardProps {
@@ -20,16 +21,16 @@ interface EnhancedDataCardProps {
 }
 
 export default function PostCard({ data ,onEdit, onDeleted }: EnhancedDataCardProps) {
-  const [likes, setLikes] = useState(0)
-  const [isLiked, setIsLiked] = useState(false)
+  const [likeUpdate] = useUpDataLikeMutation();
 
   const handleLike = () => {
-    if (isLiked) {
-      setLikes(likes - 1)
+    if (data?.liked) {
+      likeUpdate({ id: data.id, liked: false })
     } else {
-      setLikes(likes + 1)
+      if (data) {
+        likeUpdate({ id: data.id, liked: true })
+      }
     }
-    setIsLiked(!isLiked)
   }
 
   if (!data) {
@@ -65,11 +66,11 @@ export default function PostCard({ data ,onEdit, onDeleted }: EnhancedDataCardPr
         <Button
           variant="ghost"
           size="sm"
-          className={`flex items-center ${isLiked ? 'text-red-500' : 'text-gray-500'}`}
+          className={`flex items-center ${data.liked ? 'text-red-500' : 'text-gray-500'}`}
           onClick={handleLike}
         >
-          <Heart className="mr-2 h-4 w-4" fill={isLiked ? "currentColor" : "none"} />
-          {likes} {likes === 1 ? 'Like' : 'Likes'}
+          <Heart className="mr-2 h-4 w-4" fill={data.liked ? "currentColor" : "none"} />
+          {data.liked? 1 : 0} {data.liked ? 'Like' : 'Likes'}
         </Button>
         <Button
           variant="ghost"
